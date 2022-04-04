@@ -224,7 +224,8 @@ int changepassword(int i)
 	
 			delay(100);
 	cmd(0x01);
-	
+	IN1 = 0;
+	IN2 = 0;
 	return 0;
 		
 	}
