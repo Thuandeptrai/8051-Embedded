@@ -48,8 +48,10 @@ char pass[5] = "1234";
 int changepassword(int i)
 {
 		
-
+	
 	char *ptr;
+	IN1 = 0;
+	IN2 = 0;
 	ptr = pass;
 	lcdint();
 	display("N-Password-");
