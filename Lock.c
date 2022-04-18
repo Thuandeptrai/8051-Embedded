@@ -1,463 +1,395 @@
 #include<reg51.h>
+
 #include<string.h>
-sbit RS = P3^0;
-sbit EN = P3^1;
-sbit IN1 =P3^2;
-sbit IN2 = P3^3;
-void delay(int a)
-{
-	int i,j;
-	for(i=0;i<a;i++)
-	for(j=0;j<255;j++);
+
+sbit RS = P3 ^ 0;
+sbit EN = P3 ^ 1;
+sbit IN1 = P3 ^ 2;
+sbit IN2 = P3 ^ 3;
+sbit RW = P0 ^ 0;
+void delay(int a) {
+  int i, j;
+  for (i = 0; i < a; i++)
+    for (j = 0; j < 255; j++);
 }
-void cmd(char cm)
-{
-	P2 = cm;
-	RS = 0;
-	EN = 1;
-	delay(1);
-	EN = 0;
+void cmd(char cm) {
+  P2 = cm;
+  RS = 0;
+  EN = 1;
+  delay(1);
+  EN = 0;
 }
-void dat(char dt)
-{
-	P2 = dt;
-	RS = 1;
-	EN = 1;
-	delay(1);
-	EN = 0;
+void cmdwrt(unsigned char x) {
+  P2 = x; //send the command to Port 0 on which 16*2 lcd is connected
+  RS = 0; //make RS = 0 for command
+  RW = 0; //make RW = 0 for write operation
+  EN = 1; //send a HIGH to LOW pulse on Enable(E) pin to start commandwrite operation 
+  delay(1);
+  EN = 0;
+}
+void dat(char dt) {
+  P2 = dt;
+  RS = 1;
+  EN = 1;
+  delay(1);
+  EN = 0;
 }
 
-void display(char *lcd)
-{
-	while(*lcd != '\0')
-	{
-		dat(*lcd);
-		lcd++;
-	}
+void datawrt(unsigned char y) {
+  P2 = y; //send the data to Port 0 on which 16*2 lcd is connected
+  RS = 1; //make RS = 1 for command
+  RW = 0; //make RW = 0 for write operation
+  EN = 1; //send a HIGH to LOW pulse on Enable(E) pin to start datawrite operation
+  delay(1);
+  EN = 0;
 }
-void lcdint()
-{
-	cmd(0x01);
-	cmd(0x38);
-	cmd(0x0E);
-	cmd(0x80);
-	
+void display(char * lcd) {
+  while ( * lcd != '\0') {
+    dat( * lcd);
+    lcd++;
+  }
+}
+void lcdint() {
+  cmd(0x01);
+  cmd(0x38);
+  cmd(0x0E);
+  cmd(0x80);
+
 }
 char pass[5] = "1234";
-	int i=0;
-int changepassword(int i)
-{
-		
-	
-	char *ptr;
-	IN1 = 0;
-	IN2 = 0;
-	ptr = pass;
-	lcdint();
-	display("N-Password-");
-	pass[4]='\0';
-		
-		while(1)
-		{
-		while(i<4)
-	{
-		P1=0xFE;
-		if(P1==0xEE)
-		{
-			*(ptr+i)='7';
-			dat('7');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-			
-		}
-		else if(P1==0xDE)
-		{
-			*(ptr+i)='8';
-			dat('8');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-			
-		}
-		else if(P1==0xBE)
-		{
-			*(ptr+i)='9';
-			dat('9');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0x7E)
-		{
-			*(ptr+i)='/';
-			dat('/');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		
-	
-		P1=0xFD;
-		if(P1==0xED)
-		{
-			*(ptr+i)='4';
-			dat('4');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xDD)
-		{
-			*(ptr+i)='5';
-			dat('5');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xBD)
-		{
-			*(ptr+i)='6';
-			dat('6');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if (P1==0x7D)
-		{
-			*(ptr+i)='*';
-			dat('*');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-	
-	
-		P1=0xFB;
-		if(P1==0xEB)
-		{
-			*(ptr+i)='1';
-			dat('1');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xDB)
-		{
-			*(ptr+i)='2';
-			dat('2');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xBB)
-		{
-			*(ptr+i)='3';
-			dat('3');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0x7B)
-		{
-			*(ptr+i)='-';
-			dat('-');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-	
-	
-	
-		P1=0xF7;
-		if(P1==0xE7)
-		{
-			*(ptr+i)='C';
-			dat('C');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-			
-		}
-		else if(P1==0xD7)
-		{
-			*(ptr+i)='0';
-			dat('0');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xB7)
-		{
-			*(ptr+i)='=';
-			dat('=');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0x77)
-		{
-			*(ptr+i)='+';
-			dat('+');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-	}
-	while(i==4)
-	{
-		
-	
-			delay(100);
-	cmd(0x01);
-	IN1 = 0;
-	IN2 = 0;
-	return 0;
-		
-	}
-	
-	
+int i = 0;
+int changepassword(int i) {
+
+  char * ptr;
+  IN1 = 0;
+  IN2 = 0;
+  ptr = pass;
+  lcdint();
+  display("N-Password-");
+
+  pass[4] = '\0';
+
+  while (1) {
+    while (i < 4) {
+      P1 = 0xFE;
+      if (P1 == 0xEE) {
+        *(ptr + i) = '7';
+        dat('7');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+
+      } else if (P1 == 0xDE) {
+        *(ptr + i) = '8';
+        dat('8');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+
+      } else if (P1 == 0xBE) {
+        *(ptr + i) = '9';
+        dat('9');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0x7E) {
+        *(ptr + i) = '/';
+        dat('/');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      }
+
+      P1 = 0xFD;
+      if (P1 == 0xED) {
+        *(ptr + i) = '4';
+        dat('4');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xDD) {
+        *(ptr + i) = '5';
+        dat('5');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xBD) {
+        *(ptr + i) = '6';
+        dat('6');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0x7D) {
+        *(ptr + i) = '*';
+        dat('*');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      }
+
+      P1 = 0xFB;
+      if (P1 == 0xEB) {
+        *(ptr + i) = '1';
+        dat('1');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xDB) {
+        *(ptr + i) = '2';
+        dat('2');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xBB) {
+        *(ptr + i) = '3';
+        dat('3');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0x7B) {
+        *(ptr + i) = '-';
+        dat('-');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      }
+
+      P1 = 0xF7;
+      if (P1 == 0xE7) {
+        *(ptr + i) = 'C';
+        dat('C');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+
+      } else if (P1 == 0xD7) {
+        *(ptr + i) = '0';
+        dat('0');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xB7) {
+        *(ptr + i) = '=';
+        dat('=');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0x77) {
+        *(ptr + i) = '+';
+        dat('+');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      }
+    }
+    while (i == 4) {
+
+      delay(100);
+      cmd(0x01);
+      IN1 = 0;
+      IN2 = 0;
+      return 0;
+
+    }
+
+  }
 }
-		}
-void main()
-{
-	
-	char pass2[5];
-	int i=0;
-	char *ptr;
-	ptr = pass2;
-	lcdint();
-	display("Password-");
-	pass2[4]='\0';
-		
-		while(1)
-		{
-		while(i<4)
-	{
-		P1=0xFE;
-		if(P1==0xEE)
-		{
-			*(ptr+i)='7';
-			dat('7');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-			
-		}
-		else if(P1==0xDE)
-		{
-			*(ptr+i)='8';
-			dat('8');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-			
-		}
-		else if(P1==0xBE)
-		{
-			*(ptr+i)='9';
-			dat('9');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0x7E)
-		{
-			*(ptr+i)='/';
-			dat('/');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		
-	
-		P1=0xFD;
-		if(P1==0xED)
-		{
-			*(ptr+i)='4';
-			dat('4');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xDD)
-		{
-			*(ptr+i)='5';
-			dat('5');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xBD)
-		{
-			*(ptr+i)='6';
-			dat('6');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if (P1==0x7D)
-		{
-			*(ptr+i)='*';
-			dat('*');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-	
-	
-		P1=0xFB;
-		if(P1==0xEB)
-		{
-			*(ptr+i)='1';
-			dat('1');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xDB)
-		{
-			*(ptr+i)='2';
-			dat('2');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xBB)
-		{
-			*(ptr+i)='3';
-			dat('3');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0x7B)
-		{
-			*(ptr+i)='-';
-			dat('-');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-	
-	
-	
-		P1=0xF7;
-		if(P1==0xE7)
-		{
-			*(ptr+i)='C';
-			dat('C');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-			
-		}
-		else if(P1==0xD7)
-		{
-			*(ptr+i)='0';
-			dat('0');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0xB7)
-		{
-			*(ptr+i)='=';
-			dat('=');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-		else if(P1==0x77)
-		{
-			*(ptr+i)='+';
-			dat('+');
-			delay(200);
-			cmd(0x06);
-			
-			i++;
-		}
-	}
+void main() {
 
-while(i==4)
-{
+  char pass2[5];
+  int i = 0;
+  char * ptr;
+  ptr = pass2;
+  lcdint();
+  display("Password-");
 
-if ((strcmp(pass, pass2)) == 0)
-{
+  pass2[4] = '\0';
 
-	delay(100);
-	cmd(0x01);
-	display("Correct \n");
-	delay(300);
-	cmd(0x80);
-	display("Press 1 to reset password");
-		
-		cmd(0xC0);
-		IN1 = 1;
-	IN2 = 0;
+  while (1) {
+    while (i < 4) {
+      P1 = 0xFE;
+      if (P1 == 0xEE) {
+        *(ptr + i) = '7';
+        dat('7');
+        delay(200);
+        cmd(0x06);
 
-	P1=0xFB;
-		if(P1==0xEB)
-		{	delay(200);
-				cmd(0x01);
-			display("N-Password--");
-			delay(200);
-				i=0;
-	cmd(0x13);
-			changepassword(0);
-			display("Password-");
-		
-		}
+        i++;
 
-			
+      } else if (P1 == 0xDE) {
+        *(ptr + i) = '8';
+        dat('8');
+        delay(200);
+        cmd(0x06);
 
-		
+        i++;
+
+      } else if (P1 == 0xBE) {
+        *(ptr + i) = '9';
+        dat('9');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0x7E) {
+        *(ptr + i) = '/';
+        dat('/');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      }
+
+      P1 = 0xFD;
+      if (P1 == 0xED) {
+        *(ptr + i) = '4';
+        dat('4');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xDD) {
+        *(ptr + i) = '5';
+        dat('5');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xBD) {
+        *(ptr + i) = '6';
+        dat('6');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0x7D) {
+        *(ptr + i) = '*';
+        dat('*');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      }
+
+      P1 = 0xFB;
+      if (P1 == 0xEB) {
+        *(ptr + i) = '1';
+        dat('1');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xDB) {
+        *(ptr + i) = '2';
+        dat('2');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xBB) {
+        *(ptr + i) = '3';
+        dat('3');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0x7B) {
+        *(ptr + i) = '-';
+        dat('-');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      }
+
+      P1 = 0xF7;
+      if (P1 == 0xE7) {
+        *(ptr + i) = 'C';
+        dat('C');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+
+      } else if (P1 == 0xD7) {
+        *(ptr + i) = '0';
+        dat('0');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0xB7) {
+        *(ptr + i) = '=';
+        dat('=');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      } else if (P1 == 0x77) {
+        *(ptr + i) = '+';
+        dat('+');
+        delay(200);
+        cmd(0x06);
+
+        i++;
+      }
+    }
+
+    while (i == 4) {
+
+      if ((strcmp(pass, pass2)) == 0) {
+
+        delay(200);
+        cmd(0x01);
+        display("Correct Press 1 to ");
+        cmd(0xc1);
+        display("reset password");
+
+        cmd(0xC0);
+        IN1 = 1;
+        IN2 = 0;
+
+        P1 = 0xFB;
+        if (P1 == 0xEB) {
+          delay(200);
+          cmd(0x01);
+          display("N-Password--");
+          delay(200);
+          i = 0;
+          cmd(0x13);
+          changepassword(0);
+          display("Password-");
+
+        }
+
+      } else {
+        cmd(0xC0);
+        display("Incorrect");
+        delay(100);
+        cmd(0x01);
+        display("Password-");
+        i = 0;
+        IN1 = 0;
+        IN2 = 0;
+
+        delay(100);
+      }
+    }
+  }
 }
-
-else
-{
-	cmd(0xC0);
-	display("Incorrect");
-	delay(100);
-	cmd(0x01);
-	display("Password-");
-	i = 0;
-	IN1 = 0;
-	IN2 = 0;
-	
-	delay(100);
-}
-}
-}
-	}
