@@ -19,14 +19,7 @@ void cmd(char cm) {
   delay(1);
   EN = 0;
 }
-void cmdwrt(unsigned char x) {
-  P2 = x; //send the command to Port 0 on which 16*2 lcd is connected
-  RS = 0; //make RS = 0 for command
-  RW = 0; //make RW = 0 for write operation
-  EN = 1; //send a HIGH to LOW pulse on Enable(E) pin to start commandwrite operation 
-  delay(1);
-  EN = 0;
-}
+
 void dat(char dt) {
   P2 = dt;
   RS = 1;
@@ -35,14 +28,7 @@ void dat(char dt) {
   EN = 0;
 }
 
-void datawrt(unsigned char y) {
-  P2 = y; //send the data to Port 0 on which 16*2 lcd is connected
-  RS = 1; //make RS = 1 for command
-  RW = 0; //make RW = 0 for write operation
-  EN = 1; //send a HIGH to LOW pulse on Enable(E) pin to start datawrite operation
-  delay(1);
-  EN = 0;
-}
+
 void display(char * lcd) {
   while ( * lcd != '\0') {
     dat( * lcd);
