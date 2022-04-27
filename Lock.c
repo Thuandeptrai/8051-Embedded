@@ -200,6 +200,7 @@ void main() {
 
   char pass2[5];
   int i = 0;
+
   char * ptr;
   ptr = pass2;
   lcdint();
